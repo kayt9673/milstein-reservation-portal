@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Calendar, Laptop, Users, X } from "lucide-react";
+import { Calendar, FileAudio, Laptop, Users, X } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { ImageWithFallback } from "../components/shared/ImageWithFallback";
@@ -19,29 +19,29 @@ const bookingOptions: BookingOption[] = [
   {
     id: "coordinators",
     icon: Users,
-    title: "Meet with Coordinators",
-    description: "Academic advising, deadlines, and general program support.",
+    title: "Meet with Program Staff",
+    description: "Drop-in hours (no appointment needed) are also available on Wednesdays and Thursdays at 2-4PM.",
     embedUrl: "https://calendly.com/your-team/coordinator-meeting",
   },
   {
     id: "director",
     icon: Calendar,
-    title: "Meet with Director",
-    description: "Research planning, project feedback, and career guidance.",
+    title: "Meet with Program Director",
+    description: "Book an appointment with the program director to discuss your research interests, get guidance, or talk through any other program-related questions.",
     embedUrl: "https://calendly.com/your-team/director-meeting",
   },
   {
     id: "studio",
-    icon: Laptop,
+    icon: FileAudio,
     title: "Reserve Milstein Studio",
-    description: "Reserve the studio for meetings, workshops, and collaborative work.",
+    description: "Reserve the studio in RCK 131 for meetings, group work, and other collaborative activities.",
     embedUrl: "https://calendly.com/your-team/studio-space",
   },
   {
     id: "equipment",
     icon: Laptop,
     title: "Rent Tech Equipment",
-    description: "Request technology rentals in the same streamlined flow.",
+    description: "Note: Tech rentals are only offered during staff office hours.",
     embedUrl: "https://calendly.com/your-team/equipment-rental",
   },
 ];
