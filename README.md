@@ -2,28 +2,26 @@
 
 Centralized site to schedule meetings with program staff, reserve studio space, and rent tech equipment.
 
-## Tech Equipment
+### Example Tech Equipment Record
 
-Tech equipment reservations now use Firebase Auth plus a small backend API.
-
-## Local Setup
-
-Frontend:
-
-```bash
-cd frontend
-npm install
-npm run dev
+```json
+{
+  "id": "apple-15-macbook-air-laptop-computer-apple",
+  "name": "Apple 15\" MacBook Air Laptop",
+  "category": "Computer",
+  "brand": "Apple",
+  "model": "MacBook Air 15\"",
+  "units": [
+    {
+      "id": "3b7efb5d",
+      "code": "3b7efb5d",
+      "label": "01"
+    },
+    {
+      "id": "3be73804",
+      "code": "3be73804",
+      "label": "02"
+    }
+  ]
+}
 ```
-
-Backend:
-
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-The frontend reads `VITE_BACKEND_URL` from `frontend/.env`; locally it should point at `http://localhost:8787`.
-
-The backend verifies Firebase Google sign-in tokens with Firebase Admin. For local development, create a Firebase service account key in Firebase Console, then set `GOOGLE_APPLICATION_CREDENTIALS` in `backend/.env` to that JSON file path. Keep `backend/.env` out of git.
