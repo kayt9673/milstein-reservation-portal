@@ -1,0 +1,478 @@
+[
+  {
+    "id": "additional-controllers-nintendo-switch-nintendo-switch-nintendo",
+    "name": "Additional Controllers Nintendo Switch",
+    "category": "Nintendo Switch",
+    "units": [
+      {
+        "id": "bcaeaac7",
+        "code": "bcaeaac7"
+      }
+    ],
+    "brand": "Nintendo"
+  },
+  {
+    "id": "apple-13-macbook-pro-laptop-computer-apple",
+    "name": "Apple 13\" MacBook Pro Laptop",
+    "category": "Computer",
+    "units": [
+      {
+        "id": "885f139a",
+        "code": "885f139a"
+      }
+    ],
+    "brand": "Apple",
+    "model": "MacBook Pro 13\""
+  },
+  {
+    "id": "apple-15-macbook-air-laptop-computer-apple",
+    "name": "Apple 15\" MacBook Air Laptop",
+    "category": "Computer",
+    "units": [
+      {
+        "id": "3b7efb5d",
+        "code": "3b7efb5d",
+        "label": "01"
+      },
+      {
+        "id": "3be73804",
+        "code": "3be73804",
+        "label": "02"
+      }
+    ],
+    "brand": "Apple",
+    "model": "MacBook Air 15\""
+  },
+  {
+    "id": "apple-15-macbook-pro-laptop-computer-apple",
+    "name": "Apple 15\" MacBook Pro Laptop",
+    "category": "Computer",
+    "units": [
+      {
+        "id": "d67fd4d5",
+        "code": "d67fd4d5"
+      }
+    ],
+    "brand": "Apple",
+    "model": "MacBook Pro 15\""
+  },
+  {
+    "id": "apple-16-macbook-pro-laptop-computer-apple",
+    "name": "Apple 16\" MacBook Pro Laptop",
+    "category": "Computer",
+    "units": [
+      {
+        "id": "c3ba45b0",
+        "code": "c3ba45b0"
+      }
+    ],
+    "brand": "Apple",
+    "model": "MacBook Pro 16\""
+  },
+  {
+    "id": "blackmagic-design-pocket-cinema-camera-cameras-blackmagic-design",
+    "name": "Blackmagic Design Pocket Cinema Camera",
+    "category": "Cameras",
+    "units": [
+      {
+        "id": "43d5007f",
+        "code": "43d5007f"
+      }
+    ],
+    "brand": "Blackmagic Design",
+    "model": "Design Pocket Cinema Camera"
+  },
+  {
+    "id": "canon-24-105mm-lens-kit-only-lenses-canon",
+    "name": "Canon 24-105mm Lens - KIT ONLY",
+    "category": "Lenses",
+    "units": [
+      {
+        "id": "6c086875",
+        "code": "6c086875"
+      }
+    ],
+    "brand": "Canon",
+    "model": "24-105mm f/4L IS"
+  },
+  {
+    "id": "canon-eos-6d-kit-only-cameras-canon",
+    "name": "Canon EOS 6D - KIT ONLY",
+    "category": "Cameras",
+    "units": [
+      {
+        "id": "8952b5e2",
+        "code": "8952b5e2"
+      }
+    ],
+    "brand": "Canon",
+    "model": "EOS 6D Mark II"
+  },
+  {
+    "id": "canon-eos-r7-kit-only-cameras-canon",
+    "name": "Canon EOS R7 - KIT ONLY",
+    "category": "Cameras",
+    "units": [
+      {
+        "id": "e437bf02",
+        "code": "e437bf02",
+        "label": "01"
+      },
+      {
+        "id": "9e7a5615",
+        "code": "9e7a5615",
+        "label": "02"
+      }
+    ],
+    "brand": "Canon",
+    "model": "EOS R7"
+  },
+  {
+    "id": "canon-lens-rf-18-45mm-kit-only-lenses-canon",
+    "name": "Canon Lens RF-18-45mm - KIT ONLY",
+    "category": "Lenses",
+    "units": [
+      {
+        "id": "4bad9453",
+        "code": "4bad9453",
+        "label": "01"
+      },
+      {
+        "id": "96edf0c6",
+        "code": "96edf0c6",
+        "label": "02"
+      }
+    ],
+    "brand": "Canon",
+    "model": "18-45mm"
+  },
+  {
+    "id": "canon-rf-500mm-lens-kit-only-lenses-canon",
+    "name": "Canon RF 500mm Lens - KIT ONLY",
+    "category": "Lenses",
+    "units": [
+      {
+        "id": "8261110e",
+        "code": "8261110e"
+      }
+    ],
+    "brand": "Canon",
+    "model": "100-500mm f/4.5 IS USM"
+  },
+  {
+    "id": "dell-latitude-7450-computer-dell",
+    "name": "Dell Latitude 7450",
+    "category": "Computer",
+    "units": [
+      {
+        "id": "542f2825",
+        "code": "542f2825",
+        "label": "01"
+      },
+      {
+        "id": "cbd382f2",
+        "code": "cbd382f2",
+        "label": "02"
+      }
+    ],
+    "brand": "Dell",
+    "model": "Latitude 7450"
+  },
+  {
+    "id": "dock-stand-kit-only-nintendo-switch-nintendo",
+    "name": "Dock Stand - KIT ONLY",
+    "category": "Nintendo Switch",
+    "units": [
+      {
+        "id": "ce5134ad",
+        "code": "ce5134ad"
+      }
+    ],
+    "brand": "Nintendo"
+  },
+  {
+    "id": "hdmi-cable-for-nintendo-switch-kit-only-nintendo-switch-nintendo",
+    "name": "HDMI Cable for Nintendo Switch - KIT ONLY",
+    "category": "Nintendo Switch",
+    "units": [
+      {
+        "id": "0470441c",
+        "code": "0470441c"
+      }
+    ],
+    "brand": "Nintendo"
+  },
+  {
+    "id": "heyday-bluetooth-speaker-speaker-heyday",
+    "name": "Heyday Bluetooth Speaker",
+    "category": "Speaker",
+    "units": [
+      {
+        "id": "f606c1a6",
+        "code": "f606c1a6"
+      }
+    ],
+    "brand": "Heyday"
+  },
+  {
+    "id": "joy-con-controller-grip-nintendo-switch-nintendo-switch-nintendo",
+    "name": "Joy Con Controller Grip Nintendo Switch",
+    "category": "Nintendo Switch",
+    "units": [
+      {
+        "id": "7621c4bb",
+        "code": "7621c4bb"
+      }
+    ],
+    "brand": "Nintendo"
+  },
+  {
+    "id": "magnus-tripod-tripods-magnus",
+    "name": "Magnus Tripod",
+    "category": "Tripods",
+    "units": [
+      {
+        "id": "d889e09b",
+        "code": "d889e09b",
+        "label": "#1"
+      }
+    ],
+    "brand": "Magnus",
+    "model": "Tripod"
+  },
+  {
+    "id": "mario-kart-8-deluxe-video-games-nintendo",
+    "name": "Mario Kart 8 Deluxe",
+    "category": "Video Games",
+    "units": [
+      {
+        "id": "6b0f304f",
+        "code": "6b0f304f"
+      }
+    ],
+    "brand": "Nintendo"
+  },
+  {
+    "id": "meta-oculus-quest-3-vr-headset-meta",
+    "name": "Meta Oculus Quest 3",
+    "category": "VR Headset",
+    "units": [
+      {
+        "id": "e596fe6b",
+        "code": "e596fe6b"
+      }
+    ],
+    "brand": "Meta",
+    "model": "Oculus Quest 3"
+  },
+  {
+    "id": "nikon-af-s-nikkor-24-120mm-f-4g-lens-kit-only-lenses-nikon",
+    "name": "Nikon AF-S NIKKOR 24-120mm f/4G Lens - KIT ONLY",
+    "category": "Lenses",
+    "units": [
+      {
+        "id": "8da5b605",
+        "code": "8da5b605"
+      }
+    ],
+    "brand": "Nikon",
+    "model": "AF-S NIKKOR 24-120mm f/4G ED VR"
+  },
+  {
+    "id": "nikon-d750-kit-only-cameras-nikon",
+    "name": "Nikon D750 - KIT ONLY",
+    "category": "Cameras",
+    "units": [
+      {
+        "id": "fa0f58b5",
+        "code": "fa0f58b5"
+      }
+    ],
+    "brand": "Nikon",
+    "model": "D750"
+  },
+  {
+    "id": "nikon-nikkor-z-24-200mm-f-4-6-3-lens-kit-only-lenses-nikon",
+    "name": "Nikon Nikkor Z 24-200mm f/4-6.3 Lens - KIT ONLY",
+    "category": "Lenses",
+    "units": [
+      {
+        "id": "9884601d",
+        "code": "9884601d"
+      }
+    ],
+    "brand": "Nikon",
+    "model": "Nikkor Z 24-200mm f/4-6.3 VR Lens"
+  },
+  {
+    "id": "nikon-nikkor-z-28-75mm-f-2-8-lens-kit-only-lenses-nikon",
+    "name": "Nikon Nikkor Z 28-75mm f/2.8 Lens - KIT ONLY",
+    "category": "Lenses",
+    "units": [
+      {
+        "id": "7156ff08",
+        "code": "7156ff08"
+      }
+    ],
+    "brand": "Nikon",
+    "model": "Nikkor Z 24-200mm f/4-6.3 VR"
+  },
+  {
+    "id": "nikon-z6-mark-ii-kit-only-cameras-nikon",
+    "name": "Nikon Z6 Mark II - KIT ONLY",
+    "category": "Cameras",
+    "units": [
+      {
+        "id": "bb13c9d2",
+        "code": "bb13c9d2",
+        "label": "01"
+      },
+      {
+        "id": "ca6d4269",
+        "code": "ca6d4269",
+        "label": "02"
+      }
+    ],
+    "brand": "Nikon",
+    "model": "Z6 Mark II"
+  },
+  {
+    "id": "nintendo-switch-kit-only-nintendo-switch-nintendo",
+    "name": "Nintendo Switch - KIT ONLY",
+    "category": "Nintendo Switch",
+    "units": [
+      {
+        "id": "69f5f500",
+        "code": "69f5f500"
+      }
+    ],
+    "brand": "Nintendo"
+  },
+  {
+    "id": "nintendo-switch-charger-kit-only-nintendo-switch-nintendo",
+    "name": "Nintendo Switch Charger - KIT ONLY",
+    "category": "Nintendo Switch",
+    "units": [
+      {
+        "id": "2f261034",
+        "code": "2f261034"
+      }
+    ],
+    "brand": "Nintendo"
+  },
+  {
+    "id": "playstation-5-ps5-sony",
+    "name": "PlayStation 5",
+    "category": "PS5",
+    "units": [
+      {
+        "id": "89bd6b10",
+        "code": "89bd6b10"
+      }
+    ],
+    "brand": "Sony"
+  },
+  {
+    "id": "sd-card-recording-equipment-sandisk",
+    "name": "SD Card",
+    "category": "Recording Equipment",
+    "units": [
+      {
+        "id": "013d70e3",
+        "code": "013d70e3"
+      }
+    ],
+    "brand": "SanDisk",
+    "model": "64GB"
+  },
+  {
+    "id": "sony-4k-handycam-cameras-sony",
+    "name": "Sony 4K Handycam",
+    "category": "Cameras",
+    "units": [
+      {
+        "id": "881b11a4",
+        "code": "881b11a4"
+      }
+    ],
+    "brand": "Sony",
+    "model": "FDR-AX100 4K Ultra HD Camcorder"
+  },
+  {
+    "id": "sony-recorder-microphones-sony",
+    "name": "Sony Recorder",
+    "category": "Microphones",
+    "units": [
+      {
+        "id": "547cb0d9",
+        "code": "547cb0d9"
+      }
+    ],
+    "brand": "Sony"
+  },
+  {
+    "id": "sony-zoom-recorder-recording-equipment-sony",
+    "name": "Sony Zoom Recorder",
+    "category": "Recording Equipment",
+    "units": [
+      {
+        "id": "d4c326e1",
+        "code": "d4c326e1"
+      },
+      {
+        "id": "5624da84",
+        "code": "5624da84"
+      }
+    ],
+    "brand": "Sony",
+    "model": "Linear PCM-D100 Recorder"
+  },
+  {
+    "id": "super-mario-maker-2-video-games-nintendo",
+    "name": "Super Mario Maker 2",
+    "category": "Video Games",
+    "units": [
+      {
+        "id": "ffb98e2f",
+        "code": "ffb98e2f"
+      }
+    ],
+    "brand": "Nintendo"
+  },
+  {
+    "id": "the-legend-of-zelda-tears-of-the-kingdom-video-games-nintendo",
+    "name": "The Legend of Zelda: Tears of the Kingdom",
+    "category": "Video Games",
+    "units": [
+      {
+        "id": "8923f6f5",
+        "code": "8923f6f5"
+      }
+    ],
+    "brand": "Nintendo"
+  },
+  {
+    "id": "usb-a-to-lightning-cable-cables",
+    "name": "USB-A to Lightning Cable",
+    "category": "Cables",
+    "units": [
+      {
+        "id": "370d9eba",
+        "code": "370d9eba"
+      }
+    ]
+  },
+  {
+    "id": "veydra-lens-kit-lenses-veydra",
+    "name": "Veydra Lens Kit",
+    "category": "Lenses",
+    "units": [
+      {
+        "id": "ed78d1cf",
+        "code": "ed78d1cf"
+      }
+    ],
+    "brand": "Veydra",
+    "model": "Lens Kit"
+  }
+]
