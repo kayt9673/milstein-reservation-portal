@@ -842,7 +842,11 @@ function EquipmentRentalPanel() {
                       }`}
                     >
                       {isAvailable ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock3 className="h-3.5 w-3.5" />}
-                      {isAvailable ? "Available" : isOverdue ? "Past" : "Reserved"}
+                      {isAvailable
+                        ? "Available"
+                        : isOverdue
+                          ? "Past"
+                          : `Reserved${item.borrowerName ? ` (${item.borrowerName})` : ""}`}
                     </span>
                     <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6a828a]">
                       {item.category}
@@ -884,42 +888,7 @@ function EquipmentRentalPanel() {
       <aside className="h-fit rounded-lg border border-[#d7d1c5] bg-[#f7faf9] p-5">
         {selectedItem && (
           <>
-            <div className="flex items-start gap-4">
-              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md bg-white">
-                {selectedItem.imageUrl ? (
-                  <img src={selectedItem.imageUrl} alt="" className="h-full w-full object-cover" />
-                ) : (
-                  <Package className="mx-auto h-full w-8 text-[#6a828a]" />
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6a828a]">
-                  {selectedItem.category}
-                </p>
-                <h3 className="mt-1 text-xl font-bold leading-tight text-foreground">{selectedItem.name}</h3>
-                <p className="mt-1 text-sm text-[#56727b]">
-                  {[selectedItem.brand, selectedItem.model].filter(Boolean).join(" / ")}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-2 text-sm text-[#476875]">
-              {selectedItem.kit && (
-                <p className="flex items-center gap-2">
-                  <Package className="h-4 w-4 text-[#2c6171]" />
-                  {selectedItem.kit}
-                </p>
-              )}
-              <p className="flex items-center gap-2">
-                <Hash className="h-4 w-4 text-[#2c6171]" />
-                {selectedItem.code}
-              </p>
-              {selectedItem.description && (
-                <p className="rounded-md bg-white p-3 leading-6 text-[#56727b]">{selectedItem.description}</p>
-              )}
-            </div>
-
-            <div className="mt-5 rounded-lg border border-[#d7d1c5] bg-white p-4">
+            <div className="rounded-lg border border-[#d7d1c5] bg-white p-4">
               {currentUser ? (
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
@@ -937,7 +906,9 @@ function EquipmentRentalPanel() {
                 </div>
               ) : (
                 <div className="grid gap-3">
-                  <p className="text-sm font-medium text-[#476875]">Sign in with your Cornell Google account to reserve equipment.</p>
+                  <p className="text-sm font-medium text-[#476875]">
+                    Sign in with your Cornell Google account to reserve equipment.
+                  </p>
                   <button
                     type="button"
                     onClick={signInWithGoogle}
@@ -953,6 +924,87 @@ function EquipmentRentalPanel() {
                   {authError}
                 </p>
               )}
+            </div>
+
+            {currentUser && (
+              <div className="mt-4 rounded-lg border border-[#d7d1c5] bg-white p-4">
+                <h4 className="text-sm font-bold uppercase tracking-[0.08em] text-[#6a828a]">
+                  My reservations
+                </h4>
+
+                <div className="mt-3 grid gap-3">
+                  {myReservations
+                    .filter((r) => r.status === "reserved")
+                    .map((reservation) => (
+                      <div key={reservation.id} className="rounded-md border border-[#d7d1c5] bg-[#f7faf9] p-3">
+                        <p className="font-semibold text-foreground">{reservation.itemName}</p>
+                        <p className="mt-1 text-sm text-[#56727b]">
+                          {formatDate(reservation.date)} / {reservation.startTime} - {reservation.endTime}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => cancelReservation(reservation.id)}
+                          className="mt-3 inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#d3cdc2] bg-white px-3 text-sm font-medium text-[#476875] hover:border-accent hover:text-[#2c6171]"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                          Cancel
+                        </button>
+                      </div>
+                    ))}
+
+                  {myReservations.filter((r) => r.status === "reserved").length === 0 && (
+                    <p className="text-sm text-[#56727b]">No active equipment reservations.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-5 rounded-lg border border-[#d7d1c5] bg-white p-4">
+              <h4 className="mb-4 text-sm font-bold uppercase tracking-[0.08em] text-[#6a828a]">
+                Selected equipment
+              </h4>
+
+              <div className="flex items-start gap-4">
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md bg-[#f7faf9]">
+                  {selectedItem.imageUrl ? (
+                    <img src={selectedItem.imageUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <Package className="mx-auto h-full w-8 text-[#6a828a]" />
+                  )}
+                </div>
+
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6a828a]">
+                    {selectedItem.category}
+                  </p>
+                  <h3 className="mt-1 text-xl font-bold leading-tight text-foreground">
+                    {selectedItem.name}
+                  </h3>
+                  <p className="mt-1 text-sm text-[#56727b]">
+                    {[selectedItem.brand, selectedItem.model].filter(Boolean).join(" / ")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-2 text-sm text-[#476875]">
+                {selectedItem.kit && (
+                  <p className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-[#2c6171]" />
+                    {selectedItem.kit}
+                  </p>
+                )}
+
+                <p className="flex items-center gap-2">
+                  <Hash className="h-4 w-4 text-[#2c6171]" />
+                  {selectedItem.code}
+                </p>
+
+                {selectedItem.description && (
+                  <p className="rounded-md bg-[#f7faf9] p-3 leading-6 text-[#56727b]">
+                    {selectedItem.description}
+                  </p>
+                )}
+              </div>
             </div>
 
             {selectedItem.status === "checked-out" ? (
@@ -1011,6 +1063,7 @@ function EquipmentRentalPanel() {
                     <span className="text-xs font-medium text-[#9a3f2f]">{reservationDateError}</span>
                   )}
                 </label>
+
                 <fieldset className="grid gap-2 text-sm font-semibold text-[#476875]">
                   <legend>Reservation time</legend>
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -1028,6 +1081,7 @@ function EquipmentRentalPanel() {
                         ))}
                       </select>
                     </label>
+
                     <label className="grid gap-1.5">
                       End time
                       <select
@@ -1044,6 +1098,7 @@ function EquipmentRentalPanel() {
                     </label>
                   </div>
                 </fieldset>
+
                 <button
                   type="submit"
                   disabled={!currentUser || Boolean(reservationDateError) || isSubmittingReservation || isLoadingAvailability}
@@ -1052,11 +1107,13 @@ function EquipmentRentalPanel() {
                   <ClipboardCheck className="h-4 w-4" />
                   {isSubmittingReservation ? "Saving..." : isLoadingAvailability ? "Checking..." : "Reserve equipment"}
                 </button>
+
                 {reservationError && (
                   <p className="rounded-md border border-[#e6b6a7] bg-[#fff4f0] p-3 text-sm font-medium text-[#9a3f2f]">
                     {reservationError}
                   </p>
                 )}
+
                 {reservationMessage && (
                   <p className="rounded-md border border-[#b7d8c8] bg-[#eef8f3] p-3 text-sm font-medium text-[#2f6d52]">
                     {reservationMessage}

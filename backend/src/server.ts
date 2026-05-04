@@ -250,7 +250,7 @@ app.get("/api/reservations", async (request, response, next) => {
 
         return hasTimeOverlap(reservation, startTime, endTime);
       })
-      .map(({ studentEmail, studentName, userId, notes, ...reservation }) => reservation);
+      .map(({ studentEmail, userId, notes, ...reservation }) => reservation);
 
     response.json({ ok: true, reservations });
   } catch (error) {
