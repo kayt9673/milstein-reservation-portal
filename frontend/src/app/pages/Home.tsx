@@ -17,8 +17,10 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { onAuthStateChanged, signInWithPopup, signOut, type User as FirebaseUser } from "firebase/auth";
 import equipmentInventory from "../../data/equipment-inventory.json";
 import backgroundPic from "../../images/background_pic.JPG";
+import { auth, googleProvider } from "../../lib/firebase";
 
 type PanelId = "coordinators" | "director" | "studio" | "equipment";
 type EquipmentStatus = "available" | "checked-out";
@@ -52,8 +54,10 @@ interface EquipmentItem {
 
 interface EquipmentInventoryUnit {
   id?: string;
+  unitId?: string;
   label?: string;
   code?: string;
+  barcode?: string;
   status?: EquipmentStatus;
   dueDate?: string;
   reservationStartTime?: string;
@@ -64,7 +68,8 @@ interface EquipmentInventoryUnit {
 }
 
 interface EquipmentInventoryRecord {
-  id: string;
+  id?: string;
+  typeId?: string;
   name: string;
   category: string;
   brand?: string;
@@ -72,8 +77,41 @@ interface EquipmentInventoryRecord {
   kit?: string;
   imageUrl?: string;
   description?: string;
+  notes?: string;
   serialNumber?: string;
   units: EquipmentInventoryUnit[];
+}
+
+interface EquipmentInventoryResponse {
+  ok: boolean;
+  equipment?: EquipmentInventoryRecord[];
+  error?: string;
+}
+
+interface CreateReservationResponse {
+  ok: boolean;
+  reservation?: {
+    id: string;
+  };
+  error?: string;
+}
+
+interface ReservationRecord {
+  id: string;
+  unitId: string;
+  itemName: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  status: "reserved" | "cancelled";
+  studentName?: string;
+  studentEmail?: string;
+}
+
+interface ReservationListResponse {
+  ok: boolean;
+  reservations?: ReservationRecord[];
+  error?: string;
 }
 
 const bookingOptions: BookingOption[] = [
@@ -109,6 +147,7 @@ const bookingOptions: BookingOption[] = [
 const RESERVATION_OPEN_MINUTES = 14 * 60;
 const RESERVATION_CLOSE_MINUTES = 16 * 60;
 const RESERVATION_INTERVAL_MINUTES = 15;
+const BACKEND_API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8787";
 const RESERVATION_TIME_OPTIONS = Array.from(
   { length: (RESERVATION_CLOSE_MINUTES - RESERVATION_OPEN_MINUTES) / RESERVATION_INTERVAL_MINUTES + 1 },
   (_, index) => {
@@ -175,15 +214,17 @@ function formatInventoryItemName(record: EquipmentInventoryRecord, unit: Equipme
 }
 
 function mapInventoryRecord(record: EquipmentInventoryRecord): EquipmentItem[] {
-  if (!record.name || record.category === "Rooms") {
+  const recordId = record.id || record.typeId;
+
+  if (!recordId || !record.name || record.category === "Rooms") {
     return [];
   }
 
-  const units = record.units.length > 0 ? record.units : [{ id: record.id }];
+  const units = record.units.length > 0 ? record.units : [{ id: recordId }];
 
   return units.map((unit, index) => {
     const status = unit.status?.toLowerCase().replace("-", "") === "checkedout" ? "checked-out" : "available";
-    const id = unit.code || unit.id || `${record.id}-${index + 1}`;
+    const id = unit.unitId || unit.code || unit.id || `${recordId}-${index + 1}`;
 
     return {
       id,
@@ -199,14 +240,87 @@ function mapInventoryRecord(record: EquipmentInventoryRecord): EquipmentItem[] {
       borrowerName: unit.borrowerName || undefined,
       borrowerEmail: unit.borrowerEmail || undefined,
       imageUrl: record.imageUrl || undefined,
-      code: unit.code || unit.id || undefined,
-      description: record.description || undefined,
+      code: unit.code || unit.id || unit.unitId || undefined,
+      description: record.description || record.notes || undefined,
       serialNumber: unit.serialNumber || record.serialNumber || undefined,
     };
   });
 }
 
 const initialEquipment = (equipmentInventory as EquipmentInventoryRecord[]).flatMap(mapInventoryRecord);
+
+async function parseApiResponse<T extends { ok: boolean; error?: string }>(response: Response) {
+  const data = (await response.json()) as T;
+
+  if (!response.ok || !data.ok) {
+    throw new Error(data.error || "Request failed.");
+  }
+
+  return data;
+}
+
+async function getAuthHeaders(user: FirebaseUser) {
+  return {
+    Authorization: `Bearer ${await user.getIdToken()}`,
+    "Content-Type": "application/json",
+  };
+}
+
+async function fetchBackendInventory() {
+  const response = await fetch(`${BACKEND_API_URL}/api/inventory`);
+  const data = (await response.json()) as EquipmentInventoryResponse;
+
+  if (!data.ok || !data.equipment) {
+    throw new Error(data.error || "Could not load equipment inventory.");
+  }
+
+  return data.equipment.flatMap(mapInventoryRecord);
+}
+
+async function fetchReservedReservations(date: string, startTime: string, endTime: string) {
+  const params = new URLSearchParams({ date, startTime, endTime });
+  const response = await fetch(`${BACKEND_API_URL}/api/reservations?${params.toString()}`);
+  const data = await parseApiResponse<ReservationListResponse>(response);
+
+  return data.reservations ?? [];
+}
+
+async function fetchMyReservations(user: FirebaseUser) {
+  const response = await fetch(`${BACKEND_API_URL}/api/me/reservations`, {
+    headers: await getAuthHeaders(user),
+  });
+  const data = await parseApiResponse<ReservationListResponse>(response);
+
+  return data.reservations ?? [];
+}
+
+async function createBackendReservation(user: FirebaseUser, reservation: {
+  unitId: string;
+  itemName: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}) {
+  const response = await fetch(`${BACKEND_API_URL}/api/reservations`, {
+    method: "POST",
+    headers: await getAuthHeaders(user),
+    body: JSON.stringify(reservation),
+  });
+  const data = await parseApiResponse<CreateReservationResponse>(response);
+
+  return data.reservation;
+}
+
+async function cancelBackendReservation(user: FirebaseUser, reservationId: string) {
+  const response = await fetch(`${BACKEND_API_URL}/api/reservations/${reservationId}/cancel`, {
+    method: "PATCH",
+    headers: await getAuthHeaders(user),
+  });
+  const data = await parseApiResponse<CreateReservationResponse>(response);
+
+  return data.reservation;
+}
+
 interface CalendlyWidgetProps {
   url: string;
 }
@@ -324,17 +438,52 @@ function formatReservationTimeRange(item: EquipmentItem) {
   return `${item.reservationStartTime} - ${item.reservationEndTime}`;
 }
 
+function applyReservationsToItems(items: EquipmentItem[], reservations: ReservationRecord[]) {
+  return items.map((item) => {
+    const reservation = reservations.find((currentReservation) => currentReservation.unitId === item.id);
+
+    if (!reservation) {
+      return {
+        ...item,
+        status: "available" as EquipmentStatus,
+        borrowerName: undefined,
+        borrowerEmail: undefined,
+        dueDate: undefined,
+        reservationStartTime: undefined,
+        reservationEndTime: undefined,
+      };
+    }
+
+    return {
+      ...item,
+      status: "checked-out" as EquipmentStatus,
+      borrowerName: reservation.studentName,
+      borrowerEmail: reservation.studentEmail,
+      dueDate: reservation.date,
+      reservationStartTime: reservation.startTime,
+      reservationEndTime: reservation.endTime,
+    };
+  });
+}
+
 function EquipmentRentalPanel() {
+  const [baseItems, setBaseItems] = useState<EquipmentItem[]>(initialEquipment);
   const [items, setItems] = useState<EquipmentItem[]>(initialEquipment);
   const [selectedId, setSelectedId] = useState(initialEquipment[0]?.id ?? "");
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [statusFilter, setStatusFilter] = useState<"all" | EquipmentStatus>("all");
-  const [borrowerName, setBorrowerName] = useState("");
-  const [borrowerEmail, setBorrowerEmail] = useState("");
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [myReservations, setMyReservations] = useState<ReservationRecord[]>([]);
+  const [authError, setAuthError] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [reservationStartTime, setReservationStartTime] = useState(DEFAULT_RESERVATION_START_TIME);
   const [reservationEndTime, setReservationEndTime] = useState(DEFAULT_RESERVATION_END_TIME);
+  const [inventoryMessage, setInventoryMessage] = useState("Loading equipment inventory...");
+  const [reservationMessage, setReservationMessage] = useState("");
+  const [reservationError, setReservationError] = useState("");
+  const [isSubmittingReservation, setIsSubmittingReservation] = useState(false);
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
   const minimumReservationDate = useMemo(() => getDateInputValue(), []);
   const isReservationDateAllowed = !dueDate || isWednesdayOrThursday(dueDate);
   const reservationDateError = dueDate && !isReservationDateAllowed
@@ -344,6 +493,97 @@ function EquipmentRentalPanel() {
     () => getReservationEndTimeOptions(reservationStartTime),
     [reservationStartTime],
   );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetchBackendInventory()
+      .then((backendItems) => {
+        if (!isMounted) {
+          return;
+        }
+
+        if (backendItems.length === 0) {
+          setInventoryMessage("Backend inventory is empty. Showing local fallback data.");
+          return;
+        }
+
+        setBaseItems(backendItems);
+        setItems(backendItems);
+        setSelectedId(backendItems[0].id);
+        setInventoryMessage("Inventory loaded from backend.");
+      })
+      .catch((error) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setInventoryMessage(
+          error instanceof Error
+            ? `Could not load backend inventory. Showing local fallback data. ${error.message}`
+            : "Could not load backend inventory. Showing local fallback data.",
+        );
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    return onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setAuthError("");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) {
+      setMyReservations([]);
+      return;
+    }
+
+    fetchMyReservations(currentUser)
+      .then(setMyReservations)
+      .catch((error) => {
+        setAuthError(error instanceof Error ? error.message : "Could not load your reservations.");
+      });
+  }, [currentUser]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!dueDate || !isReservationDateAllowed || !reservationStartTime || !reservationEndTime) {
+      setItems(baseItems);
+      return;
+    }
+
+    setIsLoadingAvailability(true);
+    fetchReservedReservations(dueDate, reservationStartTime, reservationEndTime)
+      .then((reservations) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setItems(applyReservationsToItems(baseItems, reservations));
+      })
+      .catch((error) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setReservationError(error instanceof Error ? error.message : "Could not load availability.");
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoadingAvailability(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [baseItems, dueDate, isReservationDateAllowed, reservationStartTime, reservationEndTime]);
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(items.map((item) => item.category))).sort()],
@@ -374,6 +614,15 @@ function EquipmentRentalPanel() {
   }, [category, items, query, statusFilter]);
 
   const selectedItem = items.find((item) => item.id === selectedId) ?? items[0];
+  const selectedReservation = selectedItem
+    ? myReservations.find((reservation) =>
+        reservation.status === "reserved" &&
+        reservation.unitId === selectedItem.id &&
+        reservation.date === selectedItem.dueDate &&
+        reservation.startTime === selectedItem.reservationStartTime &&
+        reservation.endTime === selectedItem.reservationEndTime,
+      )
+    : undefined;
   const availableCount = items.filter((item) => item.status === "available").length;
   const checkedOutCount = items.length - availableCount;
   const pastReservationCount = items.filter((item) => item.status === "checked-out" && isPastReservation(item.dueDate)).length;
@@ -386,69 +635,101 @@ function EquipmentRentalPanel() {
     }
   };
 
-  const checkOutItem = (event: FormEvent<HTMLFormElement>) => {
+  const signInWithGoogle = async () => {
+    setAuthError("");
+
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "Could not sign in with Google.");
+    }
+  };
+
+  const signOutOfGoogle = async () => {
+    setAuthError("");
+    await signOut(auth);
+  };
+
+  const checkOutItem = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setReservationError("");
+    setReservationMessage("");
 
     if (
       !selectedItem ||
-      !borrowerName.trim() ||
-      !borrowerEmail.trim() ||
+      !currentUser ||
       !dueDate ||
       !isReservationDateAllowed ||
       !reservationStartTime ||
       !reservationEndTime
     ) {
+      if (!currentUser) {
+        setReservationError("Please sign in with Google before reserving equipment.");
+      }
       return;
     }
 
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.id === selectedItem.id
-          ? {
-              ...item,
-              status: "checked-out",
-              borrowerName: borrowerName.trim(),
-              borrowerEmail: borrowerEmail.trim(),
-              dueDate,
-              reservationStartTime,
-              reservationEndTime,
-            }
-          : item,
-      ),
-    );
+    setIsSubmittingReservation(true);
+
+    try {
+      await createBackendReservation(currentUser, {
+        unitId: selectedItem.id,
+        itemName: selectedItem.name,
+        date: dueDate,
+        startTime: reservationStartTime,
+        endTime: reservationEndTime,
+      });
+      const [reservations, nextMyReservations] = await Promise.all([
+        fetchReservedReservations(dueDate, reservationStartTime, reservationEndTime),
+        fetchMyReservations(currentUser),
+      ]);
+      setItems(applyReservationsToItems(baseItems, reservations));
+      setMyReservations(nextMyReservations);
+    } catch (error) {
+      setReservationError(
+        error instanceof Error
+          ? error.message
+          : "Could not create reservation. Please try again.",
+      );
+      setIsSubmittingReservation(false);
+      return;
+    }
+
+    setReservationMessage("Reservation saved.");
+    setIsSubmittingReservation(false);
   };
 
-  const checkInItem = (itemId: string) => {
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.id === itemId
-          ? {
-              ...item,
-              status: "available",
-              borrowerName: undefined,
-              borrowerEmail: undefined,
-              dueDate: undefined,
-              reservationStartTime: undefined,
-              reservationEndTime: undefined,
-            }
-          : item,
-      ),
-    );
+  const cancelReservation = async (reservationId: string) => {
+    if (!currentUser) {
+      setReservationError("Please sign in with Google first.");
+      return;
+    }
 
-    if (selectedId === itemId) {
-      setBorrowerName("");
-      setBorrowerEmail("");
-      setDueDate("");
-      setReservationStartTime(DEFAULT_RESERVATION_START_TIME);
-      setReservationEndTime(DEFAULT_RESERVATION_END_TIME);
+    setReservationError("");
+    setReservationMessage("");
+
+    try {
+      await cancelBackendReservation(currentUser, reservationId);
+      const [reservations, nextMyReservations] = await Promise.all([
+        dueDate && isReservationDateAllowed
+          ? fetchReservedReservations(dueDate, reservationStartTime, reservationEndTime)
+          : Promise.resolve([]),
+        fetchMyReservations(currentUser),
+      ]);
+
+      setItems(dueDate && isReservationDateAllowed ? applyReservationsToItems(baseItems, reservations) : baseItems);
+      setMyReservations(nextMyReservations);
+      setReservationMessage("Reservation cancelled.");
+    } catch (error) {
+      setReservationError(error instanceof Error ? error.message : "Could not cancel reservation.");
     }
   };
 
   const selectItem = (itemId: string) => {
     const nextItem = items.find((item) => item.id === itemId);
     setSelectedId(itemId);
-    setBorrowerName(nextItem?.borrowerName ?? "");
-    setBorrowerEmail(nextItem?.borrowerEmail ?? "");
+    setReservationError("");
+    setReservationMessage("");
     setDueDate(nextItem?.dueDate ?? "");
     setReservationStartTime(nextItem?.reservationStartTime ?? DEFAULT_RESERVATION_START_TIME);
     setReservationEndTime(nextItem?.reservationEndTime ?? DEFAULT_RESERVATION_END_TIME);
@@ -587,16 +868,6 @@ function EquipmentRentalPanel() {
                     <ClipboardCheck className="h-4 w-4" />
                     Select
                   </button>
-                  {!isAvailable && (
-                    <button
-                      type="button"
-                      onClick={() => checkInItem(item.id)}
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#1f4453] px-3 text-sm font-medium text-white transition hover:bg-[#2c6171] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
-                    >
-                      <RotateCcw className="h-4 w-4" />
-                      Clear
-                    </button>
-                  )}
                 </div>
               </article>
             );
@@ -648,6 +919,42 @@ function EquipmentRentalPanel() {
               )}
             </div>
 
+            <div className="mt-5 rounded-lg border border-[#d7d1c5] bg-white p-4">
+              {currentUser ? (
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6a828a]">Signed in</p>
+                    <p className="mt-1 font-bold text-foreground">{currentUser.displayName || currentUser.email}</p>
+                    <p className="text-sm text-[#56727b]">{currentUser.email}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={signOutOfGoogle}
+                    className="inline-flex h-9 items-center justify-center rounded-md border border-[#d3cdc2] bg-white px-3 text-sm font-medium text-[#476875] transition hover:border-accent hover:text-[#2c6171]"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              ) : (
+                <div className="grid gap-3">
+                  <p className="text-sm font-medium text-[#476875]">Sign in with your Cornell Google account to reserve equipment.</p>
+                  <button
+                    type="button"
+                    onClick={signInWithGoogle}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#1f4453] px-4 text-sm font-medium text-white transition hover:bg-[#2c6171]"
+                  >
+                    <User className="h-4 w-4" />
+                    Sign in with Google
+                  </button>
+                </div>
+              )}
+              {authError && (
+                <p className="mt-3 rounded-md border border-[#e6b6a7] bg-[#fff4f0] p-3 text-sm font-medium text-[#9a3f2f]">
+                  {authError}
+                </p>
+              )}
+            </div>
+
             {selectedItem.status === "checked-out" ? (
               <div className="mt-5 rounded-lg border border-[#d7d1c5] bg-white p-4">
                 <div className="mb-3 flex items-center justify-between gap-3">
@@ -674,36 +981,19 @@ function EquipmentRentalPanel() {
                     {selectedItem.borrowerEmail}
                   </p>
                 )}
-                <button
-                  type="button"
-                  onClick={() => checkInItem(selectedItem.id)}
-                  className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-[#1f4453] px-4 text-sm font-medium text-white transition hover:bg-[#2c6171] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  Clear reservation
-                </button>
+                {selectedReservation && (
+                  <button
+                    type="button"
+                    onClick={() => cancelReservation(selectedReservation.id)}
+                    className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-[#1f4453] px-4 text-sm font-medium text-white transition hover:bg-[#2c6171] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Cancel reservation
+                  </button>
+                )}
               </div>
             ) : (
               <form className="mt-5 grid gap-4" onSubmit={checkOutItem}>
-                <label className="grid gap-1.5 text-sm font-semibold text-[#476875]">
-                  Student name
-                  <input
-                    value={borrowerName}
-                    onChange={(event) => setBorrowerName(event.target.value)}
-                    className="h-10 rounded-md border border-[#d3cdc2] bg-white px-3 text-sm font-normal text-foreground outline-none transition focus:border-accent focus:ring-3 focus:ring-ring/30"
-                    required
-                  />
-                </label>
-                <label className="grid gap-1.5 text-sm font-semibold text-[#476875]">
-                  Student email
-                  <input
-                    type="email"
-                    value={borrowerEmail}
-                    onChange={(event) => setBorrowerEmail(event.target.value)}
-                    className="h-10 rounded-md border border-[#d3cdc2] bg-white px-3 text-sm font-normal text-foreground outline-none transition focus:border-accent focus:ring-3 focus:ring-ring/30"
-                    required
-                  />
-                </label>
                 <label className="grid gap-1.5 text-sm font-semibold text-[#476875]">
                   Reservation date
                   <input
@@ -756,12 +1046,22 @@ function EquipmentRentalPanel() {
                 </fieldset>
                 <button
                   type="submit"
-                  disabled={Boolean(reservationDateError)}
+                  disabled={!currentUser || Boolean(reservationDateError) || isSubmittingReservation || isLoadingAvailability}
                   className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-accent px-4 text-sm font-bold text-white transition hover:bg-[#2c6171] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50"
                 >
                   <ClipboardCheck className="h-4 w-4" />
-                  Reserve equipment
+                  {isSubmittingReservation ? "Saving..." : isLoadingAvailability ? "Checking..." : "Reserve equipment"}
                 </button>
+                {reservationError && (
+                  <p className="rounded-md border border-[#e6b6a7] bg-[#fff4f0] p-3 text-sm font-medium text-[#9a3f2f]">
+                    {reservationError}
+                  </p>
+                )}
+                {reservationMessage && (
+                  <p className="rounded-md border border-[#b7d8c8] bg-[#eef8f3] p-3 text-sm font-medium text-[#2f6d52]">
+                    {reservationMessage}
+                  </p>
+                )}
               </form>
             )}
           </>
