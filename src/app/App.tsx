@@ -15,7 +15,7 @@ export default function App() {
             />
             <img
               src={milsteinText}
-              alt="Milstein Program in Technology & Humanity"
+              alt="Milstein Program in Technology and Humanity"
               className="mt-0.5 h-7 w-auto min-w-0 object-contain"
             />
           </a>
@@ -27,7 +27,7 @@ export default function App() {
       <footer className="bg-[#1f4453] text-white">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-5 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-white/80">Milstein Program in Technology & Humanity</p>
+            <p className="text-sm text-white/80">Milstein Program in Technology and Humanity</p>
             <p className="text-sm text-white/60">Cornell University College of Arts and Sciences</p>
           </div>
         </div>
